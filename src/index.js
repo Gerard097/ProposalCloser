@@ -60,10 +60,10 @@ const launch = async () => {
 
         try {
           await closeProposal(proposal.hash);
-          logger.info("Proposal: ", proposal.hash, "closed succesfully");
+          logger.info(`Proposal: ${proposal.hash} closed succesfully`);
         }
         catch (error) {
-          logger.error("Error while closing proposal:", proposal.hash, '\n', error);
+          logger.error(`Error while closing proposal: ${proposal.hash} '\n' ${error}`);
         }
 
       });
