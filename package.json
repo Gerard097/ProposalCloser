@@ -1,0 +1,35 @@
+{
+  "name": "setuptest",
+  "version": "1.0.0",
+  "description": "Create basic accounts with the test env",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./trans-src/index.js",
+    "transpile": "babel ./src --out-dir trans-src",
+    "clean": "rimraf trans-src",
+    "build": "npm-run-all clean transpile",
+    "dev-testnet": "ENVIRONMENT=testnet npm-run-all build start",
+    "dev-prod": "ENVIRONMENT=prod npm-run-all build start"
+  },
+  "author": "",
+  "license": "ISC",
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "dependencies": {
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.14.0",
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.14.1",
+    "dgraph-js": "^21.3.0",
+    "dgraph-js-http": "^21.3.0",
+    "dotenv": "^9.0.2",
+    "eosjs": "^21.0.4",
+    "grpc": "^1.24.9",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2"
+  }
+}
