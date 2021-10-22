@@ -3,6 +3,7 @@ import { closeProposal } from "./eos";
 import fs from 'fs'
 import { queryCustom } from "./dgraph";
 import { ROOT_HASH } from "./config";
+import winston from "winston";
 
 const BLOCK_SLEEP = 2500;
 
@@ -20,16 +21,36 @@ const getProposalsQuery = () => `
 }
 `
 
+const logFormat = winston.format.printf(({ level, message, label, timestamp }) => {
+  return `${timestamp} ${level}: ${message}`;
+});
+
+const getLogger = () => {
+  return winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      logFormat
+    ), 
+    transports: [
+      new winston.transports.File({ filename: `logs/${(new Date()).toISOString()}.error.log`, level: 'error' }),
+      new winston.transports.File({ filename: `logs/${(new Date()).toISOString()}.info.log`, level: 'info' })
+    ]
+  });
+};
+
+let logger = getLogger();
+
 const launch = async () => {
     
     try {
 
-      console.log("Fetching proposals...", getProposalsQuery());
+      logger.log({ level: 'info', message: `=== Fetching proposals ===` });
 
-      const data = (await queryCustom(getProposals())).data.proposals;
+      const data = (await queryCustom(getProposalsQuery())).data.proposals;
 
       if (data.length === 0) {
-        console.log("No pending proposals found");
+        logger.info("No pending proposals found");
         return;
       }
 
@@ -39,19 +60,19 @@ const launch = async () => {
 
         try {
           await closeProposal(proposal.hash);
-          console.log("Proposal: ", proposal.hash, "closed succesfully");
+          logger.info("Proposal: ", proposal.hash, "closed succesfully");
         }
         catch (error) {
-          console.error("Error while closing proposal:", proposal.hash, '\n', error);
+          logger.error("Error while closing proposal:", proposal.hash, '\n', error);
         }
 
       });
     } 
     catch (error) {
-      console.error("Something happend while fetching proposals", error);
+      logger.error("Something happend while fetching proposals", error);
     }
 }
 
-setInterval(launch, MINUTE);
+setInterval(launch, 3 * HOUR);
 
 launch();
